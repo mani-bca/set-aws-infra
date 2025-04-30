@@ -5,5 +5,10 @@ instance_type   = "t2.medium"
 min_size        = 2
 max_size        = 3
 desired_size    = 2
-disk_size       = 10
-environment     = "dev"
+key_name        = "mykey" 
+
+tags = {
+  Environment = "dev"
+  Project     = "eks-demo"
+  Terraform   = "true"
+}
