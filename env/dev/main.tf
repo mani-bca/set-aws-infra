@@ -3,7 +3,6 @@ provider "aws" {
   access_key = "your-access-key-id"
   secret_key = "your-secret-access-key"
 }
-
 data "aws_availability_zones" "available" {}
 
 # Get the default VPC
@@ -54,6 +53,13 @@ module "eks" {
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
+  
+  # Set custom IAM role name for the cluster
+  create_iam_role = true
+  iam_role_name   = "eksClusterRole"
+
+  # Disable CloudWatch logs
+  cluster_enabled_log_types = []
 
   vpc_id     = data.aws_vpc.default.id
   subnet_ids = data.aws_subnets.default.ids
