@@ -22,17 +22,9 @@ variable "vpc_id" {
 }
 
 variable "ingress_rules" {
-  type = list(object({
-    from_port                = number
-    to_port                  = number
-    protocol                 = optional(string)
-    description              = optional(string)
-    cidr_blocks              = optional(list(string))
-    ipv6_cidr_blocks         = optional(list(string))
-    prefix_list_ids          = optional(list(string))
-    source_security_group_id = optional(string)
-    self                     = optional(bool)
-  }))
+  description = "List of ingress rules to create"
+  type        = list(any)
+  default     = []
 }
 
 variable "egress_rules" {
