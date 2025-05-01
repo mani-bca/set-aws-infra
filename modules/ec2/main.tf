@@ -28,21 +28,15 @@ data "aws_ami" "amazon_linux" {
 
 locals {
   ami_id = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux.id
-  # Deployment configuration for each instance
-  instance_configs = {
-    for idx, config in var.instance_configs : config.name => merge(config, {
-      subnet_id = element(var.subnet_ids, idx % length(var.subnet_ids))
-    })
-  }
 }
 
 # EC2 Instances
 resource "aws_instance" "this" {
-  for_each = local.instance_configs
+  for_each = { for idx, config in var.instance_configs : config.name => config }
 
   ami                         = local.ami_id
   instance_type               = lookup(each.value, "instance_type", var.instance_type)
-  subnet_id                   = each.value.subnet_id
+  subnet_id                   = element(var.subnet_ids, index(keys(local.instance_map), each.key) % length(var.subnet_ids))
   vpc_security_group_ids      = var.security_group_ids
   key_name                    = var.key_name
   associate_public_ip_address = var.associate_public_ip_address
@@ -63,27 +57,6 @@ resource "aws_instance" "this" {
       }
     )
   }
-  
-  dynamic "ebs_block_device" {
-    for_each = var.ebs_block_devices
-    
-    content {
-      device_name           = ebs_block_device.value.device_name
-      volume_type           = lookup(ebs_block_device.value, "volume_type", "gp3")
-      volume_size           = lookup(ebs_block_device.value, "volume_size", 10)
-      iops                  = lookup(ebs_block_device.value, "iops", null)
-      throughput            = lookup(ebs_block_device.value, "throughput", null)
-      delete_on_termination = lookup(ebs_block_device.value, "delete_on_termination", true)
-      encrypted             = lookup(ebs_block_device.value, "encrypted", true)
-      
-      tags = merge(
-        var.tags,
-        {
-          "Name" = "${var.name_prefix}-${each.key}-${ebs_block_device.value.device_name}"
-        }
-      )
-    }
-  }
 
   lifecycle {
     create_before_destroy = true
@@ -96,4 +69,9 @@ resource "aws_instance" "this" {
     },
     lookup(each.value, "tags", {})
   )
+}
+
+# Fix cyclic dependency issue
+locals {
+  instance_map = { for idx, config in var.instance_configs : config.name => idx }
 }
