@@ -13,32 +13,31 @@ How to Use
 
 Basic Usage (NAT Gateway Disabled):
 
-'''hcl
+```hcl
 terraformmodule "vpc" {
   source = "./path/to/vpc-module"
   
   name = "prod-vpc"
   # Using defaults for everything else (NAT Gateway disabled)
 }
-'''
+```
 
 With NAT Gateway Enabled:
 
-'''hcl
+```hcl
 terraformmodule "vpc" {
   source = "./path/to/vpc-module"
   
   name = "prod-vpc"
   create_nat_gateway = true
 }
-'''
+```
 
 Fully Customized:
 
-'''hcl
+```hcl
 terraformmodule "vpc" {
   source = "./path/to/vpc-module"
-  
   name = "custom-vpc"
   vpc_cidr = "172.16.0.0/16"
   availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
@@ -46,4 +45,4 @@ terraformmodule "vpc" {
   private_subnet_cidrs = ["172.16.11.0/24", "172.16.12.0/24", "172.16.13.0/24"]
   create_nat_gateway = true
 }
-'''
+```
