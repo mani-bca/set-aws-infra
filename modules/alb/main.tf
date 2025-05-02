@@ -111,6 +111,17 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.this[var.default_target_group_key].arn
   }
 
+  depends_on = [
+    aws_lb.this,
+    aws_lb_target_group.this
+  ]
+  
+  # Optional: For permission issues, consider adding
+  lifecycle {
+    create_before_destroy = true
+    # If you're still having permission issues, uncomment the following:
+    # ignore_changes = [tags]
+  }
   # tags = merge(
   #   var.tags,
   #   {
