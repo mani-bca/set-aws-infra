@@ -38,11 +38,11 @@ resource "aws_security_group_rule" "ingress" {
   protocol          = lookup(each.value, "protocol", "tcp")
   description       = lookup(each.value, "description", "Ingress Rule ${each.key}")
   
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null)
-  security_groups   = lookup(each.value, "security_groups", null)
-  self              = lookup(each.value, "self", null)
+  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
+  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
+  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
+  source_security_group_id = lookup(each.value, "source_security_group_id", null)
+  self                     = lookup(each.value, "self", null)
 }
 
 resource "aws_security_group_rule" "egress" {
@@ -56,9 +56,9 @@ resource "aws_security_group_rule" "egress" {
   protocol          = lookup(each.value, "protocol", "-1")
   description       = lookup(each.value, "description", "Egress Rule ${each.key}")
   
-  cidr_blocks       = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks  = lookup(each.value, "ipv6_cidr_blocks", null)
-  prefix_list_ids   = lookup(each.value, "prefix_list_ids", null)
-  security_groups   = lookup(each.value, "security_groups", null)
-  self              = lookup(each.value, "self", null)
+  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
+  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
+  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
+  source_security_group_id = lookup(each.value, "source_security_group_id", null)
+  self                     = lookup(each.value, "self", null)
 }
