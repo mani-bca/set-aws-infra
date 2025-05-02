@@ -111,12 +111,12 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.this[var.default_target_group_key].arn
   }
 
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.name_prefix}-http-listener"
-    }
-  )
+  # tags = merge(
+  #   var.tags,
+  #   {
+  #     Name = "${var.name_prefix}-http-listener"
+  #   }
+  # )
 }
 
 # ALB Listener Rules
