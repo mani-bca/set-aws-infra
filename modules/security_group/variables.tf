@@ -21,8 +21,20 @@ variable "vpc_id" {
   type        = string
 }
 
+variable "ingress_with_cidr_blocks" {
+  description = "List of ingress rules with CIDR blocks"
+  type        = list(any)
+  default     = []
+}
+
+variable "ingress_with_source_security_group_id" {
+  description = "List of ingress rules with source security group ID"
+  type        = list(any)
+  default     = []
+}
+
 variable "ingress_rules" {
-  description = "List of ingress rules to create"
+  description = "List of ingress rules to create (deprecated - use specialized variables instead)"
   type        = list(any)
   default     = []
 }

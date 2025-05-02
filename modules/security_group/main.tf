@@ -15,6 +15,39 @@ resource "aws_security_group" "this" {
   description = var.description
   vpc_id      = var.vpc_id
 
+  dynamic "ingress" {
+    for_each = var.ingress_with_cidr_blocks
+    content {
+      from_port   = ingress.value.from_port
+      to_port     = ingress.value.to_port
+      protocol    = lookup(ingress.value, "protocol", "tcp")
+      cidr_blocks = ingress.value.cidr_blocks
+      description = lookup(ingress.value, "description", "Ingress Rule ${ingress.key}")
+    }
+  }
+
+  dynamic "ingress" {
+    for_each = var.ingress_with_source_security_group_id
+    content {
+      from_port                = ingress.value.from_port
+      to_port                  = ingress.value.to_port
+      protocol                 = lookup(ingress.value, "protocol", "tcp")
+      source_security_group_id = ingress.value.source_security_group_id
+      description              = lookup(ingress.value, "description", "Ingress Rule ${ingress.key}")
+    }
+  }
+
+  dynamic "egress" {
+    for_each = var.egress_rules
+    content {
+      from_port   = egress.value.from_port
+      to_port     = egress.value.to_port
+      protocol    = lookup(egress.value, "protocol", "-1")
+      cidr_blocks = lookup(egress.value, "cidr_blocks", ["0.0.0.0/0"])
+      description = lookup(egress.value, "description", "Egress Rule ${egress.key}")
+    }
+  }
+
   tags = merge(
     var.tags,
     {
@@ -25,40 +58,4 @@ resource "aws_security_group" "this" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_security_group_rule" "ingress" {
-  for_each = { for idx, rule in var.ingress_rules : idx => rule }
-
-  security_group_id = aws_security_group.this.id
-  type              = "ingress"
-  
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = lookup(each.value, "protocol", "tcp")
-  description       = lookup(each.value, "description", "Ingress Rule ${each.key}")
-  
-  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
-  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
-  self                     = lookup(each.value, "self", null)
-}
-
-resource "aws_security_group_rule" "egress" {
-  for_each = { for idx, rule in var.egress_rules : idx => rule }
-
-  security_group_id = aws_security_group.this.id
-  type              = "egress"
-  
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = lookup(each.value, "protocol", "-1")
-  description       = lookup(each.value, "description", "Egress Rule ${each.key}")
-  
-  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
-  ipv6_cidr_blocks         = lookup(each.value, "ipv6_cidr_blocks", null)
-  prefix_list_ids          = lookup(each.value, "prefix_list_ids", null)
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
-  self                     = lookup(each.value, "self", null)
 }
