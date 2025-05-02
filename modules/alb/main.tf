@@ -80,15 +80,24 @@ resource "aws_lb_target_group" "this" {
 }
 
 # Target Group Attachments
-resource "aws_lb_target_group_attachment" "this" {
-  for_each = { 
-    for attach in var.target_group_attachments : "${attach.target_group_key}-${attach.target_id}" => attach 
-  }
+# resource "aws_lb_target_group_attachment" "this" {
+#   for_each = { 
+#     for attach in var.target_group_attachments : "${attach.target_group_key}-${attach.target_id}" => attach 
+#   }
   
-  target_group_arn = aws_lb_target_group.this[each.value.target_group_key].arn
-  target_id        = each.value.target_id
-  port             = lookup(each.value, "port", null)
+#   target_group_arn = aws_lb_target_group.this[each.value.target_group_key].arn
+#   target_id        = each.value.target_id
+#   port             = lookup(each.value, "port", null)
+# }
+
+resource "aws_lb_target_group_attachment" "this" {
+  count = length(var.target_group_attachments)
+  
+  target_group_arn = aws_lb_target_group.this[var.target_group_attachments[count.index].target_group_key].arn
+  target_id        = var.target_group_attachments[count.index].target_id
+  port             = lookup(var.target_group_attachments[count.index], "port", null)
 }
+
 
 # ALB Listener (HTTP)
 resource "aws_lb_listener" "http" {
