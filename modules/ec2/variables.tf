@@ -5,31 +5,31 @@ variable "name_prefix" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs to place the EC2 instances in"
-  type        = list(string)
+variable "subnet_id" {
+  description = "Subnet ID to place the EC2 instance in"
+  type        = string
 }
 
 variable "security_group_ids" {
-  description = "List of security group IDs for the EC2 instances"
+  description = "List of security group IDs for the EC2 instance"
   type        = list(string)
 }
 
-variable "instance_configs" {
-  description = "List of instance configurations"
-  type        = list(any)
+variable "user_data_script" {
+  description = "Path to the user data script"
+  type        = string
+  default     = null
 }
 
 variable "instance_type" {
-  description = "Default EC2 instance type"
+  description = "EC2 instance type"
   type        = string
   default     = "t3.micro"
 }
 
 variable "ami_id" {
-  description = "AMI ID for EC2 instances (if not provided, latest Amazon Linux 2023 will be used)"
+  description = "AMI ID for EC2 instance (provided via tfvars)"
   type        = string
-  default     = ""
 }
 
 variable "key_name" {
@@ -39,7 +39,7 @@ variable "key_name" {
 }
 
 variable "associate_public_ip_address" {
-  description = "Whether to associate a public IP address with instances"
+  description = "Whether to associate a public IP address with the instance"
   type        = bool
   default     = false
 }
