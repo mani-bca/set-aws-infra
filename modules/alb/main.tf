@@ -154,6 +154,53 @@ resource "aws_lb_listener_rule" "path_based" {
   )
 }
 
+# Additional Listeners
+resource "aws_lb_listener" "additional" {
+  for_each = var.additional_listeners
+
+  load_balancer_arn = aws_lb.this.arn
+  port              = each.value.port
+  protocol          = each.value.protocol
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this[each.value.target_group_key].arn
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-${each.key}-listener"
+    }
+  )
+}
+
+# Additional Listener Rules
+resource "aws_lb_listener_rule" "additional" {
+  for_each = var.additional_listener_rules
+
+  listener_arn = aws_lb_listener.additional[each.value.listener_key].arn
+  priority     = each.value.priority
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this[each.value.target_group_key].arn
+  }
+
+  condition {
+    path_pattern {
+      values = each.value.path_patterns
+    }
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.name_prefix}-${each.key}-rule"
+    }
+  )
+}
+
 # HTTPS Listener (Optional)
 resource "aws_lb_listener" "https" {
   count = var.certificate_arn != null ? 1 : 0
