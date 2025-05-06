@@ -107,3 +107,23 @@ variable "access_logs_prefix" {
   type        = string
   default     = "alb-logs"
 }
+variable "additional_listeners" {
+  description = "Map of additional listeners to create"
+  type = map(object({
+    port            = number
+    protocol        = string
+    target_group_key = string
+  }))
+  default = {}
+}
+
+variable "additional_listener_rules" {
+  description = "Map of rules for additional listeners"
+  type = map(object({
+    listener_key     = string
+    priority         = number
+    path_patterns    = list(string)
+    target_group_key = string
+  }))
+  default = {}
+}
