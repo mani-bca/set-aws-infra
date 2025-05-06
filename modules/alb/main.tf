@@ -116,10 +116,8 @@ resource "aws_lb_listener" "http" {
     aws_lb_target_group.this
   ]
   
-  # Optional: For permission issues, consider adding
   lifecycle {
     create_before_destroy = true
-    # If you're still having permission issues, uncomment the following:
     # ignore_changes = [tags]
   }
   # tags = merge(
