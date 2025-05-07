@@ -6,13 +6,6 @@ variable "function_name" {
 variable "lambda_source_file" {
   description = "Path to the Lambda function source file"
   type        = string
-  default     = ""
-}
-
-variable "lambda_source_dir" {
-  description = "Path to the Lambda function source directory"
-  type        = string
-  default     = ""
 }
 
 variable "handler" {
@@ -67,10 +60,4 @@ variable "s3_bucket_arn" {
   description = "ARN of the S3 bucket that triggers the Lambda function"
   type        = string
   default     = ""
-}
-
-variable "lambda_layers" {
-  description = "List of Lambda Layer ARNs to attach to the function"
-  type        = list(string)
-  default     = []
 }

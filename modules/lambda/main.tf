@@ -1,8 +1,7 @@
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = var.lambda_source_dir
+  source_file = var.lambda_source_file
   output_path = "${path.module}/lambda_function.zip"
-  excludes    = ["package.json", "package-lock.json", "node_modules/.package-lock.json"]
 }
 
 resource "aws_lambda_function" "this" {
@@ -20,7 +19,60 @@ resource "aws_lambda_function" "this" {
   }
 
   tags = var.tags
+}
 
-  # Add Lambda Layers for dependencies if needed
-  layers = var.lambda_layers
+resource "aws_iam_role" "lambda_role" {
+  name = "${var.function_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "${var.function_name}-policy"
+  description = "IAM policy for Lambda function ${var.function_name}"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat(
+      [
+        {
+          Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ]
+          Effect   = "Allow"
+          Resource = "arn:aws:logs:*:*:*"
+        }
+      ],
+      var.additional_policy_statements
+    )
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+resource "aws_lambda_permission" "s3_permission" {
+  count         = var.enable_s3_trigger ? 1 : 0
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.this.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = var.s3_bucket_arn
 }
