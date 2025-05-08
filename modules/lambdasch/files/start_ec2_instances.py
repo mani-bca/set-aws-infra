@@ -1,4 +1,4 @@
-# modules/ec2-scheduler/files/start_ec2_instances.py
+# modules/lambda/files/start_ec2_instances.py
 
 import boto3
 import os
@@ -15,34 +15,53 @@ def lambda_handler(event, context):
     # Initialize EC2 client
     ec2 = boto3.client('ec2')
     
+    # Get region
+    region = os.environ.get('AWS_REGION')
+    
     # Get tag key and value from environment variables or use defaults
-    tag_key = os.environ.get('TAG_KEY', 'AutoStartStop')
+    tag_key = os.environ.get('TAG_KEY', 'AutoStart')
     tag_value = os.environ.get('TAG_VALUE', 'true')
     
-    logger.info(f"Starting EC2 instances with {tag_key}={tag_value}")
+    # Log the start of the function
+    logger.info(f"Starting EC2 instances in {region} with {tag_key}={tag_value}")
     
-    # Find stopped instances with the specified tag
+    # Find instances with the specified tag
     filters = [
-        {'Name': f'tag:{tag_key}', 'Values': [tag_value]},
-        {'Name': 'instance-state-name', 'Values': ['stopped']}
+        {
+            'Name': f'tag:{tag_key}',
+            'Values': [tag_value]
+        },
+        {
+            'Name': 'instance-state-name',
+            'Values': ['stopped']
+        }
     ]
     
-    # Get instance IDs
-    instances = ec2.describe_instances(Filters=filters)
-    instance_ids = []
+    # Describe instances with the specified filters
+    response = ec2.describe_instances(Filters=filters)
     
-    for reservation in instances['Reservations']:
+    # Extract instance IDs from the response
+    instance_ids = []
+    for reservation in response['Reservations']:
         for instance in reservation['Instances']:
             instance_ids.append(instance['InstanceId'])
     
+    # If no instances found, log and return
     if not instance_ids:
-        logger.info("No instances to start")
-        return {'statusCode': 200, 'body': 'No instances to start'}
+        logger.info("No stopped instances found with the specified tag")
+        return {
+            'statusCode': 200,
+            'body': 'No instances to start'
+        }
     
     # Start the instances
     logger.info(f"Starting instances: {instance_ids}")
-    ec2.start_instances(InstanceIds=instance_ids)
+    start_response = ec2.start_instances(InstanceIds=instance_ids)
     
+    # Log the response
+    logger.info(f"Start response: {start_response}")
+    
+    # Return success
     return {
         'statusCode': 200,
         'body': f'Started {len(instance_ids)} instances'
