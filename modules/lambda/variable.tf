@@ -51,26 +51,11 @@ variable "tags" {
   default     = {}
 }
 
-variable "additional_policy_statements" {
-  description = "Additional IAM policy statements for the Lambda function"
-  type        = list(any)
-  default     = []
-}
-
-variable "enable_s3_trigger" {
-  description = "Whether to enable S3 bucket trigger for the Lambda function"
-  type        = bool
-  default     = false
-}
-
-variable "s3_bucket_arn" {
-  description = "ARN of the S3 bucket that triggers the Lambda function"
-  type        = string
-  default     = ""
-}
-
 variable "lambda_layers" {
   description = "List of Lambda Layer ARNs to attach to the function"
   type        = list(string)
   default     = []
+}
+variable "role_arn" {
+    description = "Arn of the iam role for lambda function"
 }

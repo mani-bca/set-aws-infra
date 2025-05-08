@@ -1,7 +1,8 @@
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = var.lambda_source_file
+  source_dir  = var.lambda_source_dir
   output_path = "${path.module}/lambda_function.zip"
+  excludes    = ["package.json", "package-lock.json", "node_modules/.package-lock.json"]
 }
 
 resource "aws_lambda_function" "this" {
@@ -19,6 +20,9 @@ resource "aws_lambda_function" "this" {
   }
 
   tags = var.tags
+
+  # Add Lambda Layers for dependencies if needed
+  layers = var.lambda_layers
 }
 
 resource "aws_iam_role" "lambda_role" {
