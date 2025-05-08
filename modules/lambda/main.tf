@@ -8,7 +8,7 @@ data "archive_file" "lambda_zip" {
 resource "aws_lambda_function" "this" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = var.function_name
-  role             = aws_iam_role.lambda_role.arn
+  role             = var.role_arn
   handler          = var.handler
   runtime          = var.runtime
   timeout          = var.timeout
