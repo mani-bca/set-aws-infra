@@ -1,37 +1,19 @@
-resource "aws_cloudwatch_event_rule" "start_ec2_instances" {
-  name                = "${var.project_name}-${var.environment}-start-ec2-instances"
-  description         = "Triggers Lambda function to start EC2 instances at specified time"
-  schedule_expression = var.start_cron_expression
+resource "aws_cloudwatch_event_rule" "this" {
+  name                = "${var.project_name}-${var.environment}-${var.rule_name}"
+  description         = var.description
+  schedule_expression = var.cron_expression
   
   tags = merge(
     var.tags,
     {
-      Name = "${var.project_name}-${var.environment}-start-ec2-instances"
+      Name = "${var.project_name}-${var.environment}-${var.rule_name}"
     }
   )
 }
 
-resource "aws_cloudwatch_event_rule" "stop_ec2_instances" {
-  name                = "${var.project_name}-${var.environment}-stop-ec2-instances"
-  description         = "Triggers Lambda function to stop EC2 instances at specified time"
-  schedule_expression = var.stop_cron_expression
-  
-  tags = merge(
-    var.tags,
-    {
-      Name = "${var.project_name}-${var.environment}-stop-ec2-instances"
-    }
-  )
-}
-
-resource "aws_cloudwatch_event_target" "start_ec2_instances" {
-  rule      = aws_cloudwatch_event_rule.start_ec2_instances.name
-  target_id = "start_ec2_instances"
-  arn       = var.start_lambda_function_arn
-}
-
-resource "aws_cloudwatch_event_target" "stop_ec2_instances" {
-  rule      = aws_cloudwatch_event_rule.stop_ec2_instances.name
-  target_id = "stop_ec2_instances"
-  arn       = var.stop_lambda_function_arn
+resource "aws_cloudwatch_event_target" "this" {
+  count     = var.lambda_function_arn != null ? 1 : 0
+  rule      = aws_cloudwatch_event_rule.this.name
+  target_id = var.target_id
+  arn       = var.lambda_function_arn
 }

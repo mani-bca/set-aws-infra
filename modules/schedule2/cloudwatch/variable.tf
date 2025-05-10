@@ -8,34 +8,31 @@ variable "environment" {
   type        = string
 }
 
-variable "start_cron_expression" {
-  description = "Cron expression for starting EC2 instances"
+variable "rule_name" {
+  description = "Name of the CloudWatch Event rule"
   type        = string
 }
 
-variable "stop_cron_expression" {
-  description = "Cron expression for stopping EC2 instances"
+variable "description" {
+  description = "Description of the CloudWatch Event rule"
   type        = string
 }
 
-variable "start_lambda_function_name" {
-  description = "Name of the Lambda function for starting EC2 instances"
+variable "cron_expression" {
+  description = "Cron expression for the CloudWatch Event rule"
   type        = string
 }
 
-variable "stop_lambda_function_name" {
-  description = "Name of the Lambda function for stopping EC2 instances"
+variable "target_id" {
+  description = "Target ID for the CloudWatch Event rule"
   type        = string
+  default     = "lambda"
 }
 
-variable "start_lambda_function_arn" {
-  description = "ARN of the Lambda function for starting EC2 instances"
+variable "lambda_function_arn" {
+  description = "ARN of the Lambda function to target"
   type        = string
-}
-
-variable "stop_lambda_function_arn" {
-  description = "ARN of the Lambda function for stopping EC2 instances"
-  type        = string
+  default     = null
 }
 
 variable "tags" {
