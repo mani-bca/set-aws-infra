@@ -1,37 +1,28 @@
-# modules/iam/variables.tf
-
-variable "name_prefix" {
-  description = "Prefix to be used for all resources"
+variable "name" {
+  description = "Name of the IAM role/user/group"
   type        = string
-  default     = "ec2-scheduler"
 }
 
-variable "lambda_roles" {
-  description = "Map of Lambda roles to create"
-  type = map(object({
-    description           = string
-    additional_policy_arns = list(string)
-  }))
-  default = {
-    "start-ec2" = {
-      description = "Role for Lambda function to start EC2 instances"
-      additional_policy_arns = []
-    },
-    "stop-ec2" = {
-      description = "Role for Lambda function to stop EC2 instances"
-      additional_policy_arns = []
-    }
-  }
+variable "type" {
+  description = "IAM entity type: role, user, or group"
+  type        = string
+  default     = "role"
 }
 
-variable "create_vpc_access_policy" {
-  description = "Whether to create and attach a VPC access policy"
-  type        = bool
-  default     = false
+variable "trust_policy_json" {
+  description = "Trust relationship policy (only for IAM roles)"
+  type        = string
+  default     = null
 }
 
-variable "tags" {
-  description = "A map of tags to add to all resources"
+variable "aws_managed_policy_arns" {
+  description = "List of AWS-managed policy ARNs to attach"
+  type        = list(string)
+  default     = []
+}
+
+variable "inline_policies" {
+  description = "Map of policy name to file path of JSON policy document"
   type        = map(string)
   default     = {}
 }
