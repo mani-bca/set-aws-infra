@@ -1,28 +1,17 @@
-variable "name" {
-  description = "Name of the IAM role/user/group"
+# modules/iam/variables.tf
+
+variable "project_name" {
+  description = "Name of the project"
   type        = string
 }
 
-variable "type" {
-  description = "IAM entity type: role, user, or group"
+variable "environment" {
+  description = "Environment (dev, staging, prod)"
   type        = string
-  default     = "role"
 }
 
-variable "trust_policy_json" {
-  description = "Trust relationship policy (only for IAM roles)"
-  type        = string
-  default     = null
-}
-
-variable "aws_managed_policy_arns" {
-  description = "List of AWS-managed policy ARNs to attach"
-  type        = list(string)
-  default     = []
-}
-
-variable "inline_policies" {
-  description = "Map of policy name to file path of JSON policy document"
+variable "tags" {
+  description = "Tags to be applied to all resources"
   type        = map(string)
   default     = {}
 }

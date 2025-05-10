@@ -1,115 +1,37 @@
-# modules/lambda/main.tf
-
-locals {
-  function_name = "${var.project_name}-${var.environment}-${var.function_name}"
-}
-
-resource "aws_lambda_function" "this" {
-  filename         = var.lambda_zip_path
-  function_name    = local.function_name
-  role             = var.lambda_role_arn
-  handler          = var.handler
-  source_code_hash = filebase64sha256(var.lambda_zip_path)
-  runtime          = var.runtime
-  timeout          = var.timeout
-  memory_size      = var.memory_size
-  description      = var.description
-
-  environment {
-    variables = var.environment_variables
-  }
-
+resource "aws_cloudwatch_event_rule" "start_ec2_instances" {
+  name                = "${var.project_name}-${var.environment}-start-ec2-instances"
+  description         = "Triggers Lambda function to start EC2 instances at specified time"
+  schedule_expression = var.start_cron_expression
+  
   tags = merge(
     var.tags,
     {
-      Name = local.function_name
+      Name = "${var.project_name}-${var.environment}-start-ec2-instances"
     }
   )
 }
 
-resource "aws_lambda_permission" "cloudwatch_trigger" {
-  count         = var.cloudwatch_event_rule_arn != null ? 1 : 0
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.this.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = var.cloudwatch_event_rule_arn
+resource "aws_cloudwatch_event_rule" "stop_ec2_instances" {
+  name                = "${var.project_name}-${var.environment}-stop-ec2-instances"
+  description         = "Triggers Lambda function to stop EC2 instances at specified time"
+  schedule_expression = var.stop_cron_expression
+  
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.project_name}-${var.environment}-stop-ec2-instances"
+    }
+  )
 }
 
-# modules/lambda/variables.tf
-
-variable "project_name" {
-  description = "Name of the project"
-  type        = string
-  default     = "ec2-scheduler"
+resource "aws_cloudwatch_event_target" "start_ec2_instances" {
+  rule      = aws_cloudwatch_event_rule.start_ec2_instances.name
+  target_id = "start_ec2_instances"
+  arn       = var.start_lambda_function_arn
 }
 
-variable "environment" {
-  description = "Environment (dev, staging, prod)"
-  type        = string
-  default     = "dev"
+resource "aws_cloudwatch_event_target" "stop_ec2_instances" {
+  rule      = aws_cloudwatch_event_rule.stop_ec2_instances.name
+  target_id = "stop_ec2_instances"
+  arn       = var.stop_lambda_function_arn
 }
-
-variable "function_name" {
-  description = "Name of the Lambda function"
-  type        = string
-}
-
-variable "lambda_zip_path" {
-  description = "Path to the zipped Lambda function code"
-  type        = string
-}
-
-variable "handler" {
-  description = "Lambda function handler"
-  type        = string
-  default     = "lambda_function.lambda_handler"
-}
-
-variable "runtime" {
-  description = "Runtime for Lambda function"
-  type        = string
-  default     = "python3.9"
-}
-
-variable "timeout" {
-  description = "Timeout for Lambda function (in seconds)"
-  type        = number
-  default     = 30
-}
-
-variable "memory_size" {
-  description = "Memory size for Lambda function (in MB)"
-  type        = number
-  default     = 128
-}
-
-variable "description" {
-  description = "Description for the Lambda function"
-  type        = string
-  default     = "Lambda function created by Terraform"
-}
-
-variable "environment_variables" {
-  description = "Environment variables for the Lambda function"
-  type        = map(string)
-  default     = {}
-}
-
-variable "lambda_role_arn" {
-  description = "ARN of the IAM role for Lambda function"
-  type        = string
-}
-
-variable "cloudwatch_event_rule_arn" {
-  description = "ARN of the CloudWatch Event rule for triggering the Lambda function"
-  type        = string
-  default     = null
-}
-
-variable "tags" {
-  description = "Tags to be applied to all resources"
-  type        = map(string)
-  default     = {}
-}
-
