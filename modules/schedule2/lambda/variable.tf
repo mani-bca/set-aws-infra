@@ -1,5 +1,3 @@
-# modules/lambda/variables.tf
-
 variable "project_name" {
   description = "Name of the project"
   type        = string
@@ -17,15 +15,14 @@ variable "function_name" {
   type        = string
 }
 
-variable "lambda_zip_path" {
-  description = "Path to the zipped Lambda function code"
+variable "source_file_path" {
+  description = "Path to the Lambda function source file"
   type        = string
 }
 
 variable "handler" {
   description = "Lambda function handler"
   type        = string
-  default     = "lambda_function.lambda_handler"
 }
 
 variable "runtime" {
