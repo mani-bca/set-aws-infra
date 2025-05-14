@@ -3,43 +3,42 @@ variable "function_name" {
   type        = string
 }
 
-variable "image_uri" {
-  description = "URI of the Docker image in ECR"
+variable "role_arn" {
+  description = "IAM role ARN for Lambda execution"
   type        = string
 }
 
+variable "image_uri" {
+  description = "ECR Image URI for Docker-based Lambda"
+  type        = string
+}
+
+variable "timeout" {
+  description = "Timeout in seconds"
+  type        = number
+  default     = 10
+}
+
 variable "memory_size" {
-  description = "Amount of memory in MB for the Lambda function"
+  description = "Memory in MB"
   type        = number
   default     = 128
 }
 
-variable "timeout" {
-  description = "Timeout for the Lambda function in seconds"
-  type        = number
-  default     = 30
+variable "architectures" {
+  description = "Instruction set architecture"
+  type        = list(string)
+  default     = ["x86_64"]
 }
 
 variable "environment_variables" {
-  description = "Environment variables for the Lambda function"
+  description = "Environment variables for Lambda"
   type        = map(string)
   default     = {}
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs for VPC configuration"
-  type        = list(string)
-  default     = []
-}
-
-variable "security_group_ids" {
-  description = "List of security group IDs for VPC configuration"
-  type        = list(string)
-  default     = []
-}
-
 variable "tags" {
-  description = "Tags to apply to resources"
+  description = "Tags to apply"
   type        = map(string)
   default     = {}
 }
