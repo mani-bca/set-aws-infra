@@ -5,7 +5,10 @@ resource "aws_ecr_repository" "this" {
   image_scanning_configuration {
     scan_on_push = var.scan_on_push
   }
-
+  encryption_configuration {
+    encryption_type = var.encryption_type
+    kms_key         = var.encryption_type == "KMS" ? var.kms_key : null
+  }
   tags = var.tags
 }
 
@@ -23,15 +26,15 @@ resource "aws_ecr_repository_policy" "this" {
 }
 
 # Optional: Add encryption configuration
-resource "aws_ecr_repository_encryption_configuration" "this" {
-  count        = var.encryption_type != "AES256" ? 1 : 0
-  repository_name = aws_ecr_repository.this.name
+# resource "aws_ecr_repository_encryption_configuration" "this" {
+#   count        = var.encryption_type != "AES256" ? 1 : 0
+#   repository_name = aws_ecr_repository.this.name
   
-  encryption_configuration {
-    encryption_type = var.encryption_type
-    kms_key         = var.kms_key
-  }
-}
+#   encryption_configuration {
+#     encryption_type = var.encryption_type
+#     kms_key         = var.kms_key
+#   }
+# }
 
 # Optional: Add public repository functionality if needed
 resource "aws_ecrpublic_repository" "this" {
