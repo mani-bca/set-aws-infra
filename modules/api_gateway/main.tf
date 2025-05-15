@@ -1,4 +1,3 @@
-
 resource "aws_api_gateway_rest_api" "this" {
   name        = var.api_name
   description = var.description
@@ -15,6 +14,30 @@ resource "aws_api_gateway_method" "this" {
   resource_id   = aws_api_gateway_resource.this.id
   http_method   = var.http_method
   authorization = var.authorization
+}
+
+# Add this: method response to define the expected 200 response
+resource "aws_api_gateway_method_response" "this" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.this.id
+  http_method = aws_api_gateway_method.this.http_method
+  status_code = "200"
+
+  response_models = {
+    "application/json" = "Empty"
+  }
+}
+
+# Add this: integration response that maps the method response
+resource "aws_api_gateway_integration_response" "this" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  resource_id = aws_api_gateway_resource.this.id
+  http_method = aws_api_gateway_method.this.http_method
+  status_code = aws_api_gateway_method_response.this.status_code
+
+  response_templates = {
+    "application/json" = ""
+  }
 }
 
 resource "aws_api_gateway_integration" "lambda" {
@@ -39,4 +62,3 @@ resource "aws_lambda_permission" "api_gateway" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.this.execution_arn}/*/*"
 }
-
